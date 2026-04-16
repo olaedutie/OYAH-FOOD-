@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A dish or drink on the restaurant menu",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string", "enum": ["Starters", "Main Dishes", "Grills", "Drinks", "Desserts"] },
+        "image_url": { "type": "string", "format": "uri" },
+        "is_popular": { "type": "boolean" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "category", "created_at"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "A table booking request",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "guests": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "date", "time", "guests", "status", "created_at"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "A contact message from a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "message": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message", "created_at"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer feedback or testimonial",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "source": { "type": "string", "enum": ["google", "manual"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "rating", "comment", "source", "created_at"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global restaurant settings",
+      "type": "object",
+      "properties": {
+        "restaurant_name": { "type": "string" },
+        "opening_hours": { "type": "object" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "theme_color": { "type": "string" },
+        "font": { "type": "string" }
+      }
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Blog or event post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "image": { "type": "string" },
+        "status": { "type": "string", "enum": ["published", "draft"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "status", "created_at"]
+    }
+  },
+  "firestore": {
+    "/menu_items/{itemId}": { "schema": "MenuItem", "description": "Menu catalog" },
+    "/reservations/{resId}": { "schema": "Reservation", "description": "Table bookings" },
+    "/contacts/{contactId}": { "schema": "Contact", "description": "User inquiries" },
+    "/reviews/{reviewId}": { "schema": "Review", "description": "Customer feedback" },
+    "/settings/{settingId}": { "schema": "Setting", "description": "App configuration" },
+    "/posts/{postId}": { "schema": "Post", "description": "Blog/Event content" }
+  }
+}

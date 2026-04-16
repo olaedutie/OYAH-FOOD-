@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: menu_items
+    // Fields: name, description, price, category, image_url, is_popular, created_at
+    //
+    // Collection: reservations
+    // Fields: name, phone, date, time, guests, status, created_at
+    //
+    // Collection: contacts
+    // Fields: name, email, message, created_at
+    //
+    // Collection: reviews
+    // Fields: name, rating, comment, source, created_at
+    //
+    // Collection: settings
+    // Fields: restaurant_name, opening_hours, address, phone, email, theme_color, font
+    //
+    // Collection: posts
+    // Fields: title, content, image, status, created_at
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "olaedutie@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\\\d{4}-\\\\d{2}-\\\\d{2}.*");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /menu_items/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reservations/{resId} {
+      allow read: if isAdmin();
+      allow create: if hasOnlyAllowedFields(['name', 'phone', 'date', 'time', 'guests', 'status', 'created_at']) &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.name is string &&
+                      request.resource.data.phone is string &&
+                      request.resource.data.guests is number &&
+                      request.resource.data.guests > 0;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /contacts/{contactId} {
+      allow read: if isAdmin();
+      allow create: if hasOnlyAllowedFields(['name', 'email', 'message', 'created_at']) &&
+                      isValidEmail(request.resource.data.email) &&
+                      request.resource.data.name is string &&
+                      request.resource.data.message is string &&
+                      request.resource.data.message.size() < 5000;
+      allow delete: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /posts/{postId} {
+      allow read: if request.resource.data.status == 'published' || isAdmin() || resource.data.status == 'published';
+      allow write: if isAdmin();
+    }
+  }
+}

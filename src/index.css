@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", sans-serif;
+  
+  --color-primary: #FF6B00;
+  --color-secondary: #1A1A1A;
+  --color-surface: #F9F9F9;
+  --color-card: #FFFFFF;
+  --color-muted: #666666;
+  
+  --shadow-sleek: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --radius-sleek: 24px;
+  --radius-item: 16px;
+  --radius-btn: 8px;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-secondary;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+  input, select, textarea {
+    @apply bg-[#FAFAFA] border-gray-200 rounded-[8px] focus:border-primary transition-all;
+  }
+}
+
+.section-container {
+  @apply max-w-7xl mx-auto px-6 py-16 md:py-20 lg:px-10;
+}
+
+.sleek-card {
+  @apply bg-card rounded-[--radius-sleek] shadow-[--shadow-sleek];
+}
+
+.sleek-btn {
+  @apply px-7 py-3.5 rounded-[--radius-btn] font-bold transition-all active:scale-95;
+}
