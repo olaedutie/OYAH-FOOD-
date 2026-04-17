@@ -95,7 +95,7 @@ service cloud.firestore {
     }
 
     match /posts/{postId} {
-      allow read: if request.resource.data.status == 'published' || isAdmin() || resource.data.status == 'published';
+      allow read: if resource.data.status == 'published' || isAdmin();
       allow write: if isAdmin();
     }
   }

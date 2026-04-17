@@ -1,11 +1,14 @@
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, getDocs, collection, query, limit, getDocFromServer } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 import { AppSettings, MenuItemCategory, ReviewSource, PostStatus } from './types';
 
 export async function initializeApp() {
   // Ensure we can connect to Firestore
   try {
+    // Recommended connection test
+    await getDocFromServer(doc(db, 'settings', 'connection_test')).catch(() => {});
+
     const settingsDoc = await getDoc(doc(db, 'settings', 'global'));
     if (!settingsDoc.exists()) {
       const defaultSettings: AppSettings = {
@@ -28,8 +31,14 @@ export async function initializeApp() {
     if (menuSnap.empty) {
       await seedSampleData();
     }
-  } catch (error) {
-    console.error("Initialization error:", error);
+  } catch (error: any) {
+    if (error?.code === 'permission-denied') {
+      console.info("Initialization skip: Missing permissions to write. (Normal if not logged in as admin)");
+    } else if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Firestore is offline or database ID is incorrect. Please check firebase-applet-config.json");
+    } else {
+      console.error("Initialization error:", error);
+    }
   }
 }
 
